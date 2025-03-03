@@ -1,36 +1,112 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# TodoQuest
+
+TodoQuest is a dark fantasy themed todo list application that transforms your mundane tasks into mysterious, ominous quests in the style of Dark Souls, with cryptic language, quest steps, and rewards.
+
+## Features
+
+- 🏰 **Dark Fantasy Theme**: Every task becomes a mysterious quest with cryptic, ominous language inspired by Dark Souls
+- 📜 **Quest Categories**: Organize your tasks as Daily, Main, or Optional quests
+- ✓ **Quest Steps**: Break down your main tasks into steps, each transformed into a dark ritual or arcane procedure
+- 🏆 **Rewards**: Each quest shows what you'll gain in real life, described in mysterious, foreboding terms
+- 📱 **API Integration**: Add quests via iOS Shortcuts using the built-in API
+- 💾 **Local Storage**: Your quests are saved locally in your browser
 
 ## Getting Started
 
-First, run the development server:
+### Installation
 
+1. Clone the repository:
 ```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+git clone https://github.com/yourusername/todo-quest.git
+cd todo-quest
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+2. Install dependencies:
+```bash
+npm install
+```
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+3. Start the development server:
+```bash
+npm run dev
+```
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+4. Open [http://localhost:3000](http://localhost:3000) in your browser to see the app.
 
-## Learn More
+## How It Works
 
-To learn more about Next.js, take a look at the following resources:
+TodoQuest transforms simple tasks into dark fantasy quests:
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+**Original task**: "Renew Latvian Passport"  
+**Transformed quest**: "The Covenant of Latvian Passport"
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+With a description like:
+> "In the forgotten kingdom, where light falters and shadows reign. The seals upon your identity scroll have faded, rendering your presence in the realm tenuous. The gatekeepers demand renewal of your covenant. Without the enchanted identification, you risk becoming a phantom in the lands of your dwelling, invisible to officials yet vulnerable to their decrees."
 
-## Deploy on Vercel
+And subtasks like:
+- "Pay printing fee" → "The ritual demands you offer the required tribute of currency to appease the gatekeepers."
+- "Submit photos" → "You must first capture your visage in the soul-binding ritual of image-taking."
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+## API Integration with iOS Shortcuts
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+TodoQuest provides an API endpoint that you can use with iOS Shortcuts to add new quests directly from your iPhone or iPad.
+
+### Endpoint: `/api/quest`
+
+**Method**: POST
+
+**Request Body**:
+```json
+{
+  "title": "Your task title",
+  "category": "daily", // "main" or "optional"
+  "reward": "What you get from completing this",
+  "dueDate": "2023-12-31", // Optional ISO date string
+  "subTasks": ["Subtask 1", "Subtask 2"] // Optional array of subtasks
+}
+```
+
+**Example iOS Shortcut Setup**:
+1. Create a new Shortcut in the Shortcuts app
+2. Add a "Text" action with your task name
+3. Add a "URL" action with your site URL + "/api/quest"
+4. Add a "Get Contents of URL" action:
+   - Method: POST
+   - Request Body: JSON
+   - Key: title, Value: Shortcut Input
+   - Add any additional fields as needed
+5. Optional: Add a "Show Result" action to see the response
+
+## Customization
+
+### Changing Theme Colors
+
+Edit the CSS variables in `src/app/globals.css` to change the color scheme:
+
+```css
+:root {
+  --primary: 35, 50%, 50%;
+  --secondary: 200, 25%, 35%;
+  --accent: 340, 50%, 40%;
+  /* other variables */
+}
+```
+
+### LLM Integration
+
+The app includes a placeholder service for transforming tasks into dark fantasy quests using predefined patterns. For a more advanced experience, you can integrate with OpenAI's API or another LLM service:
+
+1. Get an API key from OpenAI or other LLM provider
+2. Uncomment and configure the actual API call in `src/app/services/epicTransformer.ts`
+3. Install required packages (`npm install openai`)
+4. Add your API key to environment variables
+
+## License
+
+This project is licensed under the MIT License - see the LICENSE file for details.
+
+## Acknowledgments
+
+- Created using Next.js and React
+- Styled with Tailwind CSS
+- Fonts: Cinzel and EB Garamond for that dark fantasy feel

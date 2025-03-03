@@ -21,8 +21,14 @@ export async function POST(req: NextRequest) {
     const promptContent = body.questTitle 
       ? `Transform this subtask into a dark, ominous instruction in the style of Dark Souls.
          Main Quest: "${body.questTitle}"
-         Subtask: "${body.subtask}"`
-      : `Transform this subtask into a dark, ominous instruction in the style of Dark Souls: "${body.subtask}"`;
+         Subtask: "${body.subtask}"
+         
+         Create a dark, ominous instruction that a hero would need to follow in the world of Dark Souls.
+         Make it atmospheric and cryptic, while still clearly conveying what needs to be done.`
+      : `Transform this subtask into a dark, ominous instruction in the style of Dark Souls: "${body.subtask}"
+         
+         Create a dark, ominous instruction that a hero would need to follow in the world of Dark Souls.
+         Make it atmospheric and cryptic, while still clearly conveying what needs to be done.`;
     
     // Call Claude model
     const response = await anthropic.messages.create({

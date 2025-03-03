@@ -20,20 +20,23 @@ export async function POST(req: NextRequest) {
     // Create a prompt that includes all subtasks
     const subtasksText = body.subtasks.map((task: string, index: number) => `${index + 1}. ${task}`).join('\n');
     const prompt = `
-      Transform these subtasks into dark, ominous instructions in the style of Dark Souls.
+      Transform these mundane subtasks into dark, ominous instructions in the style of Dark Souls.
       ${body.questTitle ? `Main Quest: "${body.questTitle}"` : ''}
       
       Subtasks:
       ${subtasksText}
       
+      For each subtask, create a dark, ominous instruction in Dark Souls style.
       Return a JSON object with an array of transformed subtasks in the same order:
       {
         "transformedSubtasks": [
           "First transformed subtask",
           "Second transformed subtask",
-          ...
+          ... and so on for each subtask
         ]
       }
+
+      IMPORTANT: Make sure to return exactly one transformed version for each input subtask, keeping the same order.
     `;
     
     // Call Claude to transform all subtasks at once

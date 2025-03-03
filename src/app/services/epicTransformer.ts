@@ -84,9 +84,11 @@ export const transformSubtasksBatch = async (request: BatchSubtaskRequest): Prom
 };
 
 export const transformToEpicQuest = async (
-  request: TransformRequest
+  request: TransformRequest,
+  subtasksToTransform?: string[]
 ): Promise<TransformResponse> => {
   try {
+    // First, transform the main quest
     const response = await fetch('/api/transform', {
       method: 'POST',
       headers: {
@@ -102,9 +104,42 @@ export const transformToEpicQuest = async (
 
     const result = await response.json();
     
-    // Create a synchronous subtask transformer function for immediate use
-    // For actual transformations, use the async transformSubtask function
+    // Create a cache for transformed subtasks
+    const subtaskCache = new Map<string, string>();
+    
+    // If subtasks were provided, transform them in batch
+    if (subtasksToTransform && subtasksToTransform.length > 0) {
+      const filteredSubtasks = subtasksToTransform.filter(task => task.trim());
+      
+      if (filteredSubtasks.length > 0) {
+        try {
+          // Batch transform the subtasks
+          const batchResponse = await transformSubtasksBatch({
+            questTitle: request.title,
+            subtasks: filteredSubtasks,
+          });
+          
+          // Cache the transformed subtasks
+          filteredSubtasks.forEach((task, index) => {
+            if (batchResponse.transformedSubtasks[index]) {
+              subtaskCache.set(task, batchResponse.transformedSubtasks[index]);
+            }
+          });
+        } catch (error) {
+          console.error('Failed to batch transform subtasks:', error);
+          // We'll use the fallback for any subtasks that weren't transformed
+        }
+      }
+    }
+    
+    // Create a smart subtask transformer function
     const subtaskTransformer = (subtask: string): string => {
+      // If we already transformed this subtask, return the cached result
+      if (subtaskCache.has(subtask)) {
+        return subtaskCache.get(subtask)!;
+      }
+      
+      // Otherwise return a fallback
       return `The ancient covenant demands you ${subtask.toLowerCase()}, lest darkness consume all.`;
     };
     

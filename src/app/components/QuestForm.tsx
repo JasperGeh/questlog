@@ -13,7 +13,6 @@ interface QuestFormProps {
 export default function QuestForm({ onQuestAdded }: QuestFormProps) {
   const [title, setTitle] = useState('');
   const [category, setCategory] = useState<QuestCategory>(QuestCategory.MAIN);
-  const [reward, setReward] = useState('');
   const [dueDate, setDueDate] = useState('');
   const [subtasks, setSubtasks] = useState<string[]>(['']);
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -44,18 +43,23 @@ export default function QuestForm({ onQuestAdded }: QuestFormProps) {
     setIsSubmitting(true);
     
     try {
-      const epicQuest = await transformToEpicQuest({
-        title,
-        reward,
-      });
+      // Filter subtasks to only include non-empty ones
+      const filteredSubtasks = subtasks.filter(task => task.trim());
       
-      // Transform subtasks for preview
-      const transformed = subtasks
-        .filter(task => task.trim())
-        .map(task => ({
-          original: task,
-          transformed: epicQuest.subtaskTransformer(task)
-        }));
+      // Pass the filtered subtasks for batch transformation
+      const epicQuest = await transformToEpicQuest(
+        {
+          title,
+          // Let the AI generate the reward without user input
+        },
+        filteredSubtasks
+      );
+      
+      // Transform subtasks for preview using the returned transformer
+      const transformed = filteredSubtasks.map(task => ({
+        original: task,
+        transformed: epicQuest.subtaskTransformer(task)
+      }));
       
       setTransformedSubtasks(transformed);
       setPreviewData({
@@ -112,7 +116,7 @@ export default function QuestForm({ onQuestAdded }: QuestFormProps) {
         createdAt: Date.now(),
         dueDate: dueDate ? new Date(dueDate).getTime() : undefined,
         subTasks: filteredSubtasks,
-        realLifeReward: reward,
+        realLifeReward: 'Task completion', // Default value since we removed the input
         visualReward: previewData.reward,
       };
       
@@ -123,7 +127,6 @@ export default function QuestForm({ onQuestAdded }: QuestFormProps) {
       // Reset form
       setTitle('');
       setCategory(QuestCategory.MAIN);
-      setReward('');
       setDueDate('');
       setSubtasks(['']);
       setShowPreview(false);
@@ -133,6 +136,10 @@ export default function QuestForm({ onQuestAdded }: QuestFormProps) {
     } finally {
       setIsSubmitting(false);
     }
+  };
+  
+  const toggleCategory = () => {
+    setCategory(category === QuestCategory.MAIN ? QuestCategory.OPTIONAL : QuestCategory.MAIN);
   };
   
   return (
@@ -186,70 +193,69 @@ export default function QuestForm({ onQuestAdded }: QuestFormProps) {
           </div>
         </div>
       ) : (
-        <form onSubmit={handleSubmit}>
-          <div className="mb-4">
-            <label htmlFor="title" className="block mb-2">
-              Task *
-            </label>
+        <form onSubmit={handleSubmit} className="space-y-4">
+          {/* Main input area - always visible */}
+          <div className="flex space-x-2 items-center">
+            <button
+              type="button"
+              onClick={toggleCategory}
+              className={`shrink-0 px-3 py-2 rounded-md ${category === QuestCategory.MAIN ? 'bg-primary text-white' : 'bg-gray-200 text-gray-700'}`}
+              title={category === QuestCategory.MAIN ? 'Main Quest' : 'Optional Quest'}
+            >
+              {category === QuestCategory.MAIN ? 'Main' : 'Optional'}
+            </button>
+            
             <input
-              id="title"
               type="text"
-              className="fancy-input"
+              className="fancy-input flex-grow"
               value={title}
               onChange={(e) => setTitle(e.target.value)}
-              placeholder="Enter thy task"
+              placeholder="Enter thy quest"
               required
             />
-          </div>
-          
-          <div className="mb-4">
-            <label htmlFor="category" className="block mb-2">
-              Quest Category
-            </label>
-            <select
-              id="category"
-              className="fancy-input"
-              value={category}
-              onChange={(e) => setCategory(e.target.value as QuestCategory)}
+            
+            <button
+              type="button"
+              onClick={() => document.getElementById('dueDate')?.click()}
+              className="shrink-0 px-3 py-2 bg-gray-200 text-gray-700 rounded-md"
+              title="Set due date"
             >
-              <option value={QuestCategory.MAIN}>Main Quest</option>
-              <option value={QuestCategory.DAILY}>Daily Quest</option>
-              <option value={QuestCategory.OPTIONAL}>Optional Quest</option>
-            </select>
-          </div>
-          
-          <div className="mb-4">
-            <label htmlFor="reward" className="block mb-2">
-              Real-life Reward (optional)
-            </label>
-            <input
-              id="reward"
-              type="text"
-              className="fancy-input"
-              value={reward}
-              onChange={(e) => setReward(e.target.value)}
-              placeholder="What shalt thou gain from this quest?"
-            />
-          </div>
-          
-          <div className="mb-4">
-            <label htmlFor="dueDate" className="block mb-2">
-              Complete By (optional)
-            </label>
+              📅
+            </button>
             <input
               id="dueDate"
               type="date"
-              className="fancy-input"
+              className="hidden"
               value={dueDate}
               onChange={(e) => setDueDate(e.target.value)}
             />
+            
+            <button
+              type="button"
+              onClick={handlePreview}
+              className="fancy-button primary shrink-0"
+              disabled={isSubmitting || !title.trim()}
+            >
+              {isSubmitting ? '...' : 'Embark'}
+            </button>
           </div>
           
-          <div className="mb-4">
-            <label className="block mb-2">
-              Quest Steps
-            </label>
-            
+          {/* Date display if set */}
+          {dueDate && (
+            <div className="text-sm text-gray-600">
+              Due: {new Date(dueDate).toLocaleDateString()}
+              <button 
+                className="ml-2 text-red-500"
+                onClick={() => setDueDate('')}
+                title="Clear date"
+              >
+                ✕
+              </button>
+            </div>
+          )}
+          
+          {/* Always visible subtasks section */}
+          <div className="mt-3">
             {subtasks.map((subtask, index) => (
               <div key={index} className="flex mb-2">
                 <input
@@ -279,15 +285,6 @@ export default function QuestForm({ onQuestAdded }: QuestFormProps) {
               <span className="mr-1">+</span> Add Another Step
             </button>
           </div>
-          
-          <button
-            type="button"
-            onClick={handlePreview}
-            className="fancy-button primary"
-            disabled={isSubmitting || !title.trim()}
-          >
-            {isSubmitting ? 'Consulting the Ancients...' : 'Glimpse Thy Fate'}
-          </button>
         </form>
       )}
     </div>

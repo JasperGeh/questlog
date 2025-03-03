@@ -2,7 +2,7 @@
 
 import { useState } from 'react';
 import { Quest, SubTask } from '../types';
-import { toggleQuestCompletion, toggleSubtaskCompletion } from '../services/questStorage';
+import { toggleQuestCompletion, toggleSubtaskCompletion, deleteQuest } from '../services/questStorage';
 
 interface QuestItemProps {
   quest: Quest;
@@ -17,6 +17,13 @@ export default function QuestItem({ quest, onQuestUpdate }: QuestItemProps) {
     onQuestUpdate(updatedQuests);
   };
   
+  const handleQuestAbandonment = () => {
+    if (confirm('Are you sure you wish to abandon this quest? This action cannot be undone.')) {
+      const updatedQuests = deleteQuest(quest.id);
+      onQuestUpdate(updatedQuests);
+    }
+  };
+  
   const handleSubtaskCompletion = (subtaskId: string) => {
     const updatedQuests = toggleSubtaskCompletion(quest.id, subtaskId);
     onQuestUpdate(updatedQuests);
@@ -29,14 +36,8 @@ export default function QuestItem({ quest, onQuestUpdate }: QuestItemProps) {
   
   return (
     <div className={`quest-card ${quest.category} mb-6`}>
-      <div className="flex items-start">
-        <input
-          type="checkbox"
-          checked={quest.completed}
-          onChange={handleQuestCompletion}
-          className="mt-1.5 mr-3 subtask-checkbox"
-        />
-        <div className="flex-1">
+      <div>
+        <div>
           <h3 className={`quest-title ${quest.completed ? 'completed' : ''}`}>
             {quest.title}
           </h3>
@@ -101,6 +102,22 @@ export default function QuestItem({ quest, onQuestUpdate }: QuestItemProps) {
             {quest.dueDate ? (
               <span>Complete by: {new Date(quest.dueDate).toLocaleDateString()}</span>
             ) : null}
+          </div>
+
+          {/* Quest action buttons */}
+          <div className="mt-5 flex justify-center gap-4">
+            <button 
+              onClick={handleQuestCompletion}
+              className={`fancy-button ${quest.completed ? 'secondary' : 'primary'} w-1/3`}
+            >
+              {quest.completed ? 'Reopen Quest' : 'Complete Quest'}
+            </button>
+            <button 
+              onClick={handleQuestAbandonment}
+              className="fancy-button danger w-1/3"
+            >
+              Abandon Quest
+            </button>
           </div>
         </div>
       </div>

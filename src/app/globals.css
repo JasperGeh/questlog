@@ -139,6 +139,11 @@ h1, h2, h3, h4, h5, h6 {
   color: hsl(var(--secondary-foreground));
 }
 
+.fancy-button.danger {
+  background-color: hsl(var(--accent));
+  color: hsl(var(--accent-foreground));
+}
+
 .fancy-button:hover {
   transform: translateY(-2px);
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);

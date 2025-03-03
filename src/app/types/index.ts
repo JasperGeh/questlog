@@ -1,5 +1,4 @@
 export enum QuestCategory {
-  DAILY = 'daily',
   MAIN = 'main',
   OPTIONAL = 'optional',
 }

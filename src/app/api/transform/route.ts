@@ -45,13 +45,12 @@ export async function POST(req: NextRequest) {
       Make it ominous, cryptic, and atmospheric.
       
       Task: ${body.title}
-      Real-life Reward: ${body.reward || 'completion of the task'}
       
       Return a JSON object with the following format:
       {
         "epicTitle": "A dark fantasy title for the quest",
         "epicDescription": "A mysterious, ominous description in Dark Souls style (at least 2-3 sentences)",
-        "epicReward": "A cryptic description of the reward"
+        "epicReward": "A cryptic, mysterious reward that befits a champion who completes this dark quest"
       }
     `;
 

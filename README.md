@@ -101,6 +101,23 @@ The app includes a placeholder service for transforming tasks into dark fantasy 
 3. Install required packages (`npm install openai`)
 4. Add your API key to environment variables
 
+## Environment Setup
+
+This application uses Anthropic's Claude 3.5 Haiku model for transforming todo items into epic quests. You need to set up your environment variables:
+
+1. Create or edit the `.env` file in the root directory
+2. Add your Anthropic API key:
+   ```
+   ANTHROPIC_API_KEY=your_api_key_here
+   ```
+3. Restart the development server if it's already running
+
+You can get an API key from [Anthropic's Console](https://console.anthropic.com/).
+
+## Development
+
+// ... existing code ...
+
 ## License
 
 This project is licensed under the MIT License - see the LICENSE file for details.

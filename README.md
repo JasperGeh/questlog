@@ -2,6 +2,8 @@
 
 TodoQuest is a dark fantasy themed todo list application that transforms your mundane tasks into mysterious, ominous quests in the style of Dark Souls, with cryptic language, quest steps, and rewards.
 
+> ⚠️ **AI-Generated Project Warning**: This project is "vibecoded" - meaning all portions (including this box) were generated using AI assistance. While efforts have been made to ensure quality and functionality, it comes with the inherent risks and limitations of AI-generated code. The code may contain unexpected behaviors, security vulnerabilities, or implementation gaps. Use at your own discretion and thoroughly test before using in any critical systems.
+
 ## Features
 
 - 🏰 **Dark Fantasy Theme**: Every task becomes a mysterious quest with cryptic, ominous language inspired by Dark Souls

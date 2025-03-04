@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useRef } from 'react';
 import { v4 as uuidv4 } from 'uuid';
 import { Quest, QuestCategory, SubTask } from '../types';
 import { addQuest } from '../services/questStorage';
@@ -14,11 +14,12 @@ export default function QuestForm({ onQuestAdded }: QuestFormProps) {
   const [title, setTitle] = useState('');
   const [category, setCategory] = useState<QuestCategory>(QuestCategory.MAIN);
   const [dueDate, setDueDate] = useState('');
-  const [subtasks, setSubtasks] = useState<string[]>(['']);
+  const [subtasks, setSubtasks] = useState<string[]>([]);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [transformedSubtasks, setTransformedSubtasks] = useState<{original: string, transformed: string}[]>([]);
   const [showPreview, setShowPreview] = useState(false);
   const [previewData, setPreviewData] = useState<{title: string, description: string, reward: string} | null>(null);
+  const datePickerRef = useRef<HTMLInputElement>(null);
   
   const handleAddSubtask = () => {
     setSubtasks([...subtasks, '']);
@@ -128,7 +129,7 @@ export default function QuestForm({ onQuestAdded }: QuestFormProps) {
       setTitle('');
       setCategory(QuestCategory.MAIN);
       setDueDate('');
-      setSubtasks(['']);
+      setSubtasks([]);
       setShowPreview(false);
       setPreviewData(null);
     } catch (error) {
@@ -143,118 +144,80 @@ export default function QuestForm({ onQuestAdded }: QuestFormProps) {
   };
   
   return (
-    <div className="quest-card mb-8">
-      <h2 className="quest-title text-xl mb-4">
-        {showPreview ? 'Behold Thy Quest' : 'Embark on a New Quest'}
-      </h2>
+    <div className="mb-10">
       
-      {showPreview && previewData ? (
-        <div className="mb-6">
-          <div className="mb-4">
-            <h3 className="font-semibold text-lg">{previewData.title}</h3>
-            <p className="quest-description mt-2">{previewData.description}</p>
-            
-            {transformedSubtasks.length > 0 && (
-              <div className="mt-4">
-                <h4 className="font-semibold mb-2">Quest Steps:</h4>
-                <ul className="ml-4 space-y-2">
-                  {transformedSubtasks.map((task, i) => (
-                    <li key={i} className="list-disc ml-2">
-                      {task.transformed}
-                    </li>
-                  ))}
-                </ul>
-              </div>
-            )}
-            
-            <div className="quest-reward mt-4">
-              <span className="text-sm font-semibold">Reward: </span> 
-              {previewData.reward}
-            </div>
-          </div>
+      <form onSubmit={(e) => { e.preventDefault(); handlePreview(); }} className="space-y-4">
+        {/* Main input area - always visible */}
+        <div className="flex space-x-2 items-center">
+          <button
+            type="button"
+            onClick={toggleCategory}
+            className={`shrink-0 px-3 py-2 rounded-md ${category === QuestCategory.MAIN ? 'bg-primary text-white' : 'bg-gray-200 text-gray-700'}`}
+            title={category === QuestCategory.MAIN ? 'Main Quest' : 'Optional Quest'}
+          >
+            {category === QuestCategory.MAIN ? 'Main' : 'Optional'}
+          </button>
           
-          <div className="flex space-x-4">
-            <button
-              type="button"
-              className="fancy-button secondary"
-              onClick={() => setShowPreview(false)}
-            >
-              Return to Editing
-            </button>
-            
-            <button
-              type="button"
-              className="fancy-button primary"
-              onClick={handleSubmit}
-              disabled={isSubmitting}
-            >
-              {isSubmitting ? 'Inscribing...' : 'Accept This Fate'}
-            </button>
-          </div>
+          <button
+            type="button"
+            onClick={() => datePickerRef.current?.showPicker()}
+            className="shrink-0 px-3 py-2 bg-gray-200 text-gray-700 rounded-md"
+            title="Set due date"
+          >
+            📅
+          </button>
+
+          <input
+            ref={datePickerRef}
+            type="date"
+            className="hidden"
+            value={dueDate}
+            onChange={(e) => setDueDate(e.target.value)}
+          />
+
+          <input
+            type="text"
+            className="fancy-input flex-grow"
+            value={title}
+            onChange={(e) => setTitle(e.target.value)}
+            placeholder="What are you seeking to accomplish?"
+            required
+          />
+          
+          <button
+            type="button"
+            onClick={handlePreview}
+            className="fancy-button primary shrink-0"
+            disabled={isSubmitting || !title.trim()}
+          >
+            {isSubmitting ? '...' : 'Embark'}
+          </button>
         </div>
-      ) : (
-        <form onSubmit={handleSubmit} className="space-y-4">
-          {/* Main input area - always visible */}
-          <div className="flex space-x-2 items-center">
-            <button
-              type="button"
-              onClick={toggleCategory}
-              className={`shrink-0 px-3 py-2 rounded-md ${category === QuestCategory.MAIN ? 'bg-primary text-white' : 'bg-gray-200 text-gray-700'}`}
-              title={category === QuestCategory.MAIN ? 'Main Quest' : 'Optional Quest'}
+        
+        {/* Date display if set */}
+        {dueDate && (
+          <div className="text-sm text-gray-600">
+            Due: {new Date(dueDate).toLocaleDateString()}
+            <button 
+              className="ml-2 text-red-500"
+              onClick={() => setDueDate('')}
+              title="Clear date"
             >
-              {category === QuestCategory.MAIN ? 'Main' : 'Optional'}
-            </button>
-            
-            <input
-              type="text"
-              className="fancy-input flex-grow"
-              value={title}
-              onChange={(e) => setTitle(e.target.value)}
-              placeholder="Enter thy quest"
-              required
-            />
-            
-            <button
-              type="button"
-              onClick={() => document.getElementById('dueDate')?.click()}
-              className="shrink-0 px-3 py-2 bg-gray-200 text-gray-700 rounded-md"
-              title="Set due date"
-            >
-              📅
-            </button>
-            <input
-              id="dueDate"
-              type="date"
-              className="hidden"
-              value={dueDate}
-              onChange={(e) => setDueDate(e.target.value)}
-            />
-            
-            <button
-              type="button"
-              onClick={handlePreview}
-              className="fancy-button primary shrink-0"
-              disabled={isSubmitting || !title.trim()}
-            >
-              {isSubmitting ? '...' : 'Embark'}
+              ✕
             </button>
           </div>
-          
-          {/* Date display if set */}
-          {dueDate && (
-            <div className="text-sm text-gray-600">
-              Due: {new Date(dueDate).toLocaleDateString()}
-              <button 
-                className="ml-2 text-red-500"
-                onClick={() => setDueDate('')}
-                title="Clear date"
-              >
-                ✕
-              </button>
-            </div>
-          )}
-          
-          {/* Always visible subtasks section */}
+        )}
+        
+        {/* Add subtask button */}
+        {subtasks.length === 0 ? (
+          <button
+            type="button"
+            onClick={handleAddSubtask}
+            className="text-sm flex items-center mt-2 text-blue-600 hover:text-blue-800"
+          >
+            <span className="mr-1">+</span> Add Quest Steps
+          </button>
+        ) : (
           <div className="mt-3">
             {subtasks.map((subtask, index) => (
               <div key={index} className="flex mb-2">
@@ -285,7 +248,45 @@ export default function QuestForm({ onQuestAdded }: QuestFormProps) {
               <span className="mr-1">+</span> Add Another Step
             </button>
           </div>
-        </form>
+        )}
+      </form>
+
+      {/* Quest preview section */}
+      {showPreview && previewData && (
+        <div className="mt-6 p-4 border border-gray-200 rounded-md bg-gray-50">
+          <h3 className="text-lg font-semibold mb-2">Quest Preview</h3>
+          <div className="mb-4">
+            <h4 className="font-semibold">{previewData.title}</h4>
+            <p className="quest-description mt-2">{previewData.description}</p>
+            
+            {transformedSubtasks.length > 0 && (
+              <div className="mt-4">
+                <h5 className="font-semibold mb-2">Quest Steps:</h5>
+                <ul className="ml-4 space-y-2">
+                  {transformedSubtasks.map((task, i) => (
+                    <li key={i} className="list-disc ml-2">
+                      {task.transformed}
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            )}
+            
+            <div className="quest-reward mt-4">
+              <span className="text-sm font-semibold">Reward: </span> 
+              {previewData.reward}
+            </div>
+          </div>
+          
+          <button
+            type="button"
+            className="fancy-button primary"
+            onClick={handleSubmit}
+            disabled={isSubmitting}
+          >
+            {isSubmitting ? 'Inscribing...' : 'Accept This Fate'}
+          </button>
+        </div>
       )}
     </div>
   );

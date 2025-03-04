@@ -8,7 +8,6 @@ import QuestLog from './components/QuestLog';
 
 export default function Home() {
   const [quests, setQuests] = useState<Quest[]>([]);
-  const [showForm, setShowForm] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
   
   // Load quests from local storage on initial render
@@ -22,41 +21,37 @@ export default function Home() {
     <main className="min-h-screen py-12 px-4 sm:px-6 lg:px-8 max-w-5xl mx-auto">
       <header className="text-center mb-12">
         <h1 className="text-4xl font-bold mb-2">Quest Log</h1>
-        <p className="text-xl italic">Transform thy mundane tasks into epic adventures</p>
+        <p className="text-xl italic">What destiny awaits thee?</p>
       </header>
       
-      <div className="mb-8 text-center">
-        <button
-          className="fancy-button primary"
-          onClick={() => setShowForm(!showForm)}
-        >
-          {showForm ? 'Hide Quest Form' : 'Embark on a New Quest'}
-        </button>
+      <div className="space-y-10">
+        {/* New Quest Form */}
+        <section>
+          <QuestForm 
+            onQuestAdded={(updatedQuests) => {
+              setQuests(updatedQuests);
+            }} 
+          />
+        </section>
+        
+        {/* Quest Log */}
+        <section>
+          {isLoading ? (
+            <div className="text-center py-8">
+              <p className="text-xl italic">Loading thy quest log...</p>
+            </div>
+          ) : (
+            <QuestLog 
+              quests={quests} 
+              onQuestsUpdate={(updatedQuests) => {
+                setQuests(updatedQuests);
+              }} 
+            />
+          )}
+        </section>
       </div>
       
-      {showForm && (
-        <QuestForm 
-          onQuestAdded={(updatedQuests) => {
-            setQuests(updatedQuests);
-          }} 
-        />
-      )}
-      
-      {isLoading ? (
-        <div className="text-center py-8">
-          <p className="text-xl italic">Loading thy quest log...</p>
-        </div>
-      ) : (
-        <QuestLog 
-          quests={quests} 
-          onQuestsUpdate={(updatedQuests) => {
-            setQuests(updatedQuests);
-          }} 
-        />
-      )}
-      
       <footer className="mt-16 text-center text-sm text-gray-500">
-        <p>TodoQuest - Turn thy tasks into epic quests</p>
         <p className="mt-1">Use the API at /api/quest to add quests via iOS Shortcuts</p>
       </footer>
     </main>

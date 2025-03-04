@@ -2,8 +2,8 @@ import type { Metadata } from "next";
 import "./globals.css";
 
 export const metadata: Metadata = {
-  title: "TodoQuest - Transform Tasks into Epic Adventures",
-  description: "A high-fantasy themed todo app that turns your mundane tasks into epic quests with flowery language and rewards.",
+  title: "Questlog - Transform todos into dark fantasy quests",
+  description: "A dark fantasy themed todo app that turns your mundane tasks into quests with flowery language and rewards.",
   icons: {
     icon: "/favicon.ico",
   },

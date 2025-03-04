@@ -152,7 +152,7 @@ export default function QuestForm({ onQuestAdded }: QuestFormProps) {
           <button
             type="button"
             onClick={toggleCategory}
-            className={`shrink-0 px-3 py-2 rounded-md ${category === QuestCategory.MAIN ? 'bg-primary text-white' : 'bg-gray-200 text-gray-700'}`}
+            className={`fancy-button shrink-0 ${category === QuestCategory.MAIN ? 'primary' : 'secondary'}`}
             title={category === QuestCategory.MAIN ? 'Main Quest' : 'Optional Quest'}
           >
             {category === QuestCategory.MAIN ? 'Main' : 'Optional'}
@@ -161,7 +161,7 @@ export default function QuestForm({ onQuestAdded }: QuestFormProps) {
           <button
             type="button"
             onClick={() => datePickerRef.current?.showPicker()}
-            className="shrink-0 px-3 py-2 bg-gray-200 text-gray-700 rounded-md"
+            className="fancy-button secondary shrink-0"
             title="Set due date"
           >
             📅

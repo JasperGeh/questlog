@@ -127,6 +127,7 @@ h1, h2, h3, h4, h5, h6 {
   text-align: center;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
   cursor: pointer;
+  position: relative;
 }
 
 .fancy-button.primary {
@@ -164,4 +165,9 @@ h1, h2, h3, h4, h5, h6 {
 .completed {
   text-decoration: line-through;
   opacity: 0.6;
+}
+
+/* Explicitly prevent hover effects on quest cards */
+.quest-card:hover {
+  transform: none;
 }

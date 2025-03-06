@@ -2,7 +2,7 @@
 
 import { useState, useRef } from 'react';
 import { v4 as uuidv4 } from 'uuid';
-import { Quest, QuestCategory, SubTask } from '../types';
+import { Quest, QuestCategory } from '../types';
 import { addQuest } from '../services/questStorage';
 import { transformToEpicQuest } from '../services/epicTransformer';
 

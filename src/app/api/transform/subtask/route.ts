@@ -19,22 +19,22 @@ export async function POST(req: NextRequest) {
     
     // Create the prompt for Anthropic's Claude 3.5 Haiku
     const promptContent = body.questTitle 
-      ? `Transform this subtask into a dark, ominous instruction in the style of Dark Souls.
+      ? `Transform this subtask into a dark, atmospheric instruction in the style of Dark Souls.
          Main Quest: "${body.questTitle}"
          Subtask: "${body.subtask}"
          
-         Create a dark, ominous instruction that a hero would need to follow in the world of Dark Souls.
-         Make it atmospheric and cryptic, while still clearly conveying what needs to be done.`
-      : `Transform this subtask into a dark, ominous instruction in the style of Dark Souls: "${body.subtask}"
+         Create an instruction that maintains the original meaning while adding a touch of mystery and atmosphere, like in Dark Souls.
+         It should be clear enough to understand what needs to be done.`
+      : `Transform this subtask into a dark, atmospheric instruction in the style of Dark Souls: "${body.subtask}"
          
-         Create a dark, ominous instruction that a hero would need to follow in the world of Dark Souls.
-         Make it atmospheric and cryptic, while still clearly conveying what needs to be done.`;
+         Create an instruction that maintains the original meaning while adding a touch of mystery and atmosphere, like in Dark Souls.
+         It should be clear enough to understand what needs to be done.`;
     
     // Call Claude model
     const response = await anthropic.messages.create({
       model: "claude-3-5-haiku-20241022",
       max_tokens: 150,
-      system: "Transform mundane subtasks into dark, cryptic descriptions in the style of Dark Souls.",
+      system: "Transform mundane subtasks into atmospheric instructions with a touch of mystery, like in Dark Souls, while preserving the original meaning and intent.",
       messages: [{ role: "user", content: promptContent }],
     });
     

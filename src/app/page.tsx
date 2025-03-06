@@ -21,7 +21,6 @@ export default function Home() {
     <main className="min-h-screen py-12 px-4 sm:px-6 lg:px-8 max-w-5xl mx-auto">
       <header className="text-center mb-12">
         <h1 className="text-4xl font-bold mb-2">Quest Log</h1>
-        <p className="text-xl italic">What destiny awaits thee?</p>
       </header>
       
       <div className="space-y-10">
@@ -52,7 +51,7 @@ export default function Home() {
       </div>
       
       <footer className="mt-16 text-center text-sm text-gray-500">
-        <p className="mt-1">Use the API at /api/quest to add quests via iOS Shortcuts</p>
+        {/* Footer content removed */}
       </footer>
     </main>
   );

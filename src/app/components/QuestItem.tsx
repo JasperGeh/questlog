@@ -38,61 +38,66 @@ export default function QuestItem({ quest, onQuestUpdate }: QuestItemProps) {
 
   return (
     <div className="quest-card-new">
-      {/* Left column with image and title */}
-      <div className="quest-image-container">
-        <Image
-          src="/header.png"
-          alt={quest.title}
-          width={1792}
-          height={1024}
-          className="quest-image"
-          priority
-        />
-        
-        {quest.completed && (
-          <div className="quest-status-badge">
-            COMPLETED
+      {/* Left column with image and description */}
+      <div className="quest-left-column">
+        {/* Image and title */}
+        <div className="quest-image-container">
+          <Image
+            src="/header.png"
+            alt={quest.title}
+            width={1792}
+            height={1024}
+            className="quest-image"
+            priority
+          />
+          
+          {/* Only show COMPLETED badge, not FAILED */}
+          {quest.completed && (
+            <div className="quest-status-badge">
+              COMPLETED
+            </div>
+          )}
+          
+          {/* Due date badge - show in top left */}
+          {formattedDate && (
+            <div className="quest-date-badge">
+              {quest.completed ? 'Completed:' : 'Due:'} {formattedDate}
+            </div>
+          )}
+          
+          <div className="quest-image-overlay">
+            <h3 className="quest-title-new">
+              {quest.title}
+            </h3>
           </div>
-        )}
-        
-        {!quest.completed && quest.dueDate && new Date(quest.dueDate) < new Date() && (
-          <div className="quest-status-badge">
-            FAILED
-          </div>
-        )}
-        
-        <div className="quest-image-overlay">
-          <h3 className="quest-title-new">
-            {quest.title}
-          </h3>
         </div>
-      </div>
-      
-      {/* Right column with description, tasks and reward */}
-      <div className="quest-content">
-        {/* Description */}
+        
+        {/* Description below the image in left column */}
         <div className="quest-description-new">
           {quest.epicDescription}
         </div>
-        
+      </div>
+      
+      {/* Right column with tasks and reward */}
+      <div className="quest-content">
         {/* Tasks section */}
         {quest.subTasks.length > 0 && (
           <div className="quest-tasks">
             <ul className="quest-task-list">
-              {quest.subTasks.map((subtask, index) => (
+              {quest.subTasks.map((subtask) => (
                 <li 
                   key={subtask.id} 
                   className={`quest-task-item ${subtask.completed ? 'completed' : ''}`}
                   onClick={() => handleSubtaskCompletion(subtask.id)}
                 >
-                  {/* Different marker styles for completed vs non-completed */}
+                  {/* Use hollow diamond for all non-completed tasks */}
                   {subtask.completed ? (
                     <span className="quest-task-marker">
                       ✓
                     </span>
                   ) : (
-                    <span className={`quest-task-marker ${index % 2 === 0 ? 'diamond' : ''}`}>
-                      {index % 2 === 0 ? '' : '◇'}
+                    <span className="quest-task-marker">
+                      ◇
                     </span>
                   )}
                   <span>{subtask.description}</span>
@@ -109,15 +114,8 @@ export default function QuestItem({ quest, onQuestUpdate }: QuestItemProps) {
             {quest.visualReward}
           </p>
         </div>
-        
-        {/* Date attempted/due */}
-        {formattedDate && (
-          <div className="quest-attempted">
-            {quest.completed ? 'Completed:' : 'Due:'} {formattedDate}
-          </div>
-        )}
-        
-        {/* Action buttons */}
+
+        {/* Action buttons moved below reward in right column */}
         <div className="quest-actions">
           <button 
             onClick={handleQuestCompletion}

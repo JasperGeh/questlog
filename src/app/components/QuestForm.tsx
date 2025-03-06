@@ -152,7 +152,7 @@ export default function QuestForm({ onQuestAdded }: QuestFormProps) {
           <button
             type="button"
             onClick={toggleCategory}
-            className={`fancy-button shrink-0 ${category === QuestCategory.MAIN ? 'primary' : 'secondary'}`}
+            className={`quest-button shrink-0 ${category === QuestCategory.MAIN ? 'primary' : 'secondary'}`}
             title={category === QuestCategory.MAIN ? 'Main Quest' : 'Optional Quest'}
           >
             {category === QuestCategory.MAIN ? 'Main' : 'Optional'}
@@ -161,7 +161,7 @@ export default function QuestForm({ onQuestAdded }: QuestFormProps) {
           <button
             type="button"
             onClick={() => datePickerRef.current?.showPicker()}
-            className="fancy-button secondary shrink-0"
+            className="quest-button shrink-0"
             title="Set due date"
           >
             📅
@@ -187,7 +187,7 @@ export default function QuestForm({ onQuestAdded }: QuestFormProps) {
           <button
             type="button"
             onClick={handlePreview}
-            className="fancy-button primary shrink-0"
+            className="quest-button shrink-0"
             disabled={isSubmitting || !title.trim()}
           >
             {isSubmitting ? '...' : 'Embark'}
@@ -253,16 +253,16 @@ export default function QuestForm({ onQuestAdded }: QuestFormProps) {
 
       {/* Quest preview section */}
       {showPreview && previewData && (
-        <div className="mt-6 p-4 border border-gray-200 rounded-md bg-gray-50">
-          <h3 className="text-lg font-semibold mb-2">Quest Preview</h3>
+        <div className="mt-6 p-4 border border-gray-200 rounded-md bg-gray-50 dark:bg-[#1a1625] dark:border-[#3d3554]">
+          <h3 className="text-lg font-semibold mb-2 dark:text-[#e6e1f0]">Quest Preview</h3>
           <div className="mb-4">
-            <h4 className="font-semibold">{previewData.title}</h4>
-            <p className="quest-description mt-2">{previewData.description}</p>
+            <h4 className="font-semibold dark:text-[#e6e1f0]">{previewData.title}</h4>
+            <p className="quest-description mt-2 dark:text-[#bbb6c7]">{previewData.description}</p>
             
             {transformedSubtasks.length > 0 && (
               <div className="mt-4">
-                <h5 className="font-semibold mb-2">Quest Steps:</h5>
-                <ul className="ml-4 space-y-2">
+                <h5 className="font-semibold mb-2 dark:text-[#e6e1f0]">Quest Steps:</h5>
+                <ul className="ml-4 space-y-2 dark:text-[#bbb6c7]">
                   {transformedSubtasks.map((task, i) => (
                     <li key={i} className="list-disc ml-2">
                       {task.transformed}
@@ -272,7 +272,7 @@ export default function QuestForm({ onQuestAdded }: QuestFormProps) {
               </div>
             )}
             
-            <div className="quest-reward mt-4">
+            <div className="quest-reward mt-4 dark:text-[#e6e1f0]">
               <span className="text-sm font-semibold">Reward: </span> 
               {previewData.reward}
             </div>
@@ -280,7 +280,7 @@ export default function QuestForm({ onQuestAdded }: QuestFormProps) {
           
           <button
             type="button"
-            className="fancy-button primary"
+            className="quest-button"
             onClick={handleSubmit}
             disabled={isSubmitting}
           >

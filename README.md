@@ -6,14 +6,49 @@ Questlog is a dark fantasy themed todo list application that transforms your mun
 
 ## Features
 
-- 🏰 **Dark Fantasy Theme**: Every task becomes a mysterious quest with cryptic, ominous language inspired by Dark Souls
-- 📜 **Quest Categories**: Organize your tasks as Daily, Main, or Optional quests
-- ✓ **Quest Steps**: Break down your main tasks into steps, each transformed into a dark ritual or arcane procedure
-- 🏆 **Rewards**: Each quest shows what you'll gain in real life, described in mysterious, foreboding terms
-- 📱 **API Integration**: Add quests via iOS Shortcuts using the built-in API
-- 💾 **Local Storage**: Your quests are saved locally in your browser
+- **Dark Fantasy Theme**: Every task becomes a mysterious quest with cryptic, ominous language inspired by Dark Souls
+- **Quest Categories**: Organize your tasks as Daily, Main, or Optional quests
+- **Quest Steps**: Break down your main tasks into steps, each transformed into a dark ritual or arcane procedure
+- **Rewards**: Each quest shows what you'll gain in real life, described in mysterious, foreboding terms
+- **API Integration**: Add quests via iOS Shortcuts using the built-in API
+- **Local Storage**: Your quests are saved locally in your browser
+- **AI-Powered Transformations**: Uses Anthropic's Claude 3.5 Haiku to transform ordinary tasks into epic quests
+
+## Tech Stack
+
+- **Framework**: Next.js 15 with App Router and React 19
+- **Styling**: Tailwind CSS 4
+- **AI Integration**: Anthropic Claude 3.5 Haiku for quest transformations
+- **Development**: TypeScript with ESLint
+- **Bundling**: TurboPack for fast development builds
+
+## Project Structure
+
+```
+src/
+├── app/                 # Next.js App Router structure
+│   ├── api/             # API routes for quest creation and transformations
+│   │   ├── quest/       # API endpoint for quest CRUD operations
+│   │   └── transform/   # API endpoints to transform tasks using Claude AI
+│   ├── components/      # React components
+│   │   ├── QuestForm.tsx    # Form to create new quests
+│   │   ├── QuestItem.tsx    # Individual quest display component
+│   │   └── QuestLog.tsx     # Component displaying all quests
+│   ├── services/        # Client-side services
+│   │   ├── epicTransformer.ts  # Handles transformation of tasks to quests
+│   │   └── questStorage.ts     # Local storage management
+│   ├── types/           # TypeScript interfaces
+│   ├── utils/           # Utility functions
+│   ├── page.tsx         # Main page component
+│   └── globals.css      # Global styles
+```
 
 ## Getting Started
+
+### Prerequisites
+
+- Node.js 20.x or higher
+- npm or yarn
 
 ### Installation
 
@@ -28,26 +63,33 @@ cd todo-quest
 npm install
 ```
 
-3. Start the development server:
+3. Set up your environment variables:
+   Create a `.env` file in the root directory with your Anthropic API key:
+   ```
+   ANTHROPIC_API_KEY=your_api_key_here
+   ```
+
+4. Start the development server:
 ```bash
 npm run dev
 ```
 
-4. Open [http://localhost:3000](http://localhost:3000) in your browser to see the app.
+5. Open [http://localhost:3000](http://localhost:3000) in your browser to see the app.
 
 ## How It Works
 
 TodoQuest transforms simple tasks into dark fantasy quests:
 
-**Original task**: "Renew Latvian Passport"  
-**Transformed quest**: "The Covenant of Latvian Passport"
+**Original task**: "Prepare for job interview"  
+**Transformed quest**: "The Trial of the Corporate Covenant"
 
 With a description like:
-> "In the forgotten kingdom, where light falters and shadows reign. The seals upon your identity scroll have faded, rendering your presence in the realm tenuous. The gatekeepers demand renewal of your covenant. Without the enchanted identification, you risk becoming a phantom in the lands of your dwelling, invisible to officials yet vulnerable to their decrees."
+> "Heed these words, ashen one. The Elder Council of Industry beckons, their judgment awaits. Their arcane assessment shall determine if you are worthy to join their shadowed ranks. The ritual of interrogation approaches—a trial where many have faltered, their spirits broken upon the altar of rejection. Prepare thy mind and visage for this grim ceremony, lest you be cast back into the abyss of unemployment, where forgotten souls wander without purpose or coin."
 
 And subtasks like:
-- "Pay printing fee" → "The ritual demands you offer the required tribute of currency to appease the gatekeepers."
-- "Submit photos" → "You must first capture your visage in the soul-binding ritual of image-taking."
+- "Research the company" → "Delve into the forbidden archives to uncover the dark history and eldritch secrets of the corporate entity."
+- "Practice interview questions" → "Commune with the echoes of past supplicants, rehearsing the ancient liturgy of queries that the Council shall surely demand."
+- "Iron clothes for interview" → "Perform the ritual of garment purification, banishing wrinkles to the nether realm, ensuring your corporeal vessel appears worthy of the Council's gaze."
 
 ## API Integration with iOS Shortcuts
 
@@ -96,12 +138,11 @@ Edit the CSS variables in `src/app/globals.css` to change the color scheme:
 
 ### LLM Integration
 
-The app includes a placeholder service for transforming tasks into dark fantasy quests using predefined patterns. For a more advanced experience, you can integrate with OpenAI's API or another LLM service:
+The app includes integration with Anthropic's Claude 3.5 Haiku for transforming tasks into dark fantasy quests. You can modify the prompts in the following files:
 
-1. Get an API key from OpenAI or other LLM provider
-2. Uncomment and configure the actual API call in `src/app/services/epicTransformer.ts`
-3. Install required packages (`npm install openai`)
-4. Add your API key to environment variables
+- `src/app/api/transform/route.ts` - Main quest transformation
+- `src/app/api/transform/subtask/route.ts` - Subtask transformation
+- `src/app/api/transform/batch/route.ts` - Batch subtask transformation
 
 ## Environment Setup
 
@@ -118,7 +159,27 @@ You can get an API key from [Anthropic's Console](https://console.anthropic.com/
 
 ## Development
 
-// ... existing code ...
+### Building for Production
+
+To build the app for production:
+
+```bash
+npm run build
+```
+
+To start the production server:
+
+```bash
+npm run start
+```
+
+### Linting
+
+To run ESLint:
+
+```bash
+npm run lint
+```
 
 ## License
 
@@ -129,3 +190,4 @@ This project is licensed under the MIT License - see the LICENSE file for detail
 - Created using Next.js and React
 - Styled with Tailwind CSS
 - Fonts: Cinzel and EB Garamond for that dark fantasy feel
+- AI transformations powered by Anthropic's Claude 3.5 Haiku

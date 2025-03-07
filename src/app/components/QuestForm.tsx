@@ -164,7 +164,16 @@ export default function QuestForm({ onQuestAdded }: QuestFormProps) {
             className="quest-button shrink-0"
             title="Set due date"
           >
-            📅
+            Add Date
+          </button>
+
+          <button
+            type="button"
+            onClick={handleAddSubtask}
+            className="quest-button shrink-0"
+            title="Add steps to your quest"
+          >
+            Add Subtasks
           </button>
 
           <input
@@ -196,10 +205,10 @@ export default function QuestForm({ onQuestAdded }: QuestFormProps) {
         
         {/* Date display if set */}
         {dueDate && (
-          <div className="text-sm text-gray-600">
+          <div className="text-sm text-[#e6e1f0]">
             Due: {new Date(dueDate).toLocaleDateString()}
             <button 
-              className="ml-2 text-red-500"
+              className="ml-2 px-2 py-1 bg-[#5a3f3f] text-[#e6e1f0] rounded-md hover:bg-[#724f4f] transition-colors"
               onClick={() => setDueDate('')}
               title="Clear date"
             >
@@ -208,16 +217,8 @@ export default function QuestForm({ onQuestAdded }: QuestFormProps) {
           </div>
         )}
         
-        {/* Add subtask button */}
-        {subtasks.length === 0 ? (
-          <button
-            type="button"
-            onClick={handleAddSubtask}
-            className="text-sm flex items-center mt-2 text-blue-600 hover:text-blue-800"
-          >
-            <span className="mr-1">+</span> Add Quest Steps
-          </button>
-        ) : (
+        {/* Subtasks section - only show when there are subtasks */}
+        {subtasks.length > 0 && (
           <div className="mt-3">
             {subtasks.map((subtask, index) => (
               <div key={index} className="flex mb-2">
@@ -232,7 +233,7 @@ export default function QuestForm({ onQuestAdded }: QuestFormProps) {
                 <button
                   type="button"
                   onClick={() => handleRemoveSubtask(index)}
-                  className="px-3 py-2 bg-red-500 text-white rounded"
+                  className="px-3 py-2 bg-[#5a3f3f] text-[#e6e1f0] rounded-md hover:bg-[#724f4f] transition-colors"
                   aria-label="Remove step"
                 >
                   ✕
@@ -243,7 +244,7 @@ export default function QuestForm({ onQuestAdded }: QuestFormProps) {
             <button
               type="button"
               onClick={handleAddSubtask}
-              className="text-sm flex items-center mt-2 text-blue-600 hover:text-blue-800"
+              className="text-sm flex items-center mt-2 text-[#e6e1f0] hover:text-white"
             >
               <span className="mr-1">+</span> Add Another Step
             </button>
@@ -253,16 +254,16 @@ export default function QuestForm({ onQuestAdded }: QuestFormProps) {
 
       {/* Quest preview section */}
       {showPreview && previewData && (
-        <div className="mt-6 p-4 border border-gray-200 rounded-md bg-gray-50 dark:bg-[#1a1625] dark:border-[#3d3554]">
-          <h3 className="text-lg font-semibold mb-2 dark:text-[#e6e1f0]">Quest Preview</h3>
+        <div className="mt-6 p-4 border border-[#3d3554] rounded-md bg-[#1a1625] text-[#e6e1f0]">
+          <h3 className="text-lg font-semibold mb-2 text-[#e6e1f0]">Quest Preview</h3>
           <div className="mb-4">
-            <h4 className="font-semibold dark:text-[#e6e1f0]">{previewData.title}</h4>
-            <p className="quest-description mt-2 dark:text-[#bbb6c7]">{previewData.description}</p>
+            <h4 className="font-semibold text-[#e6e1f0]">{previewData.title}</h4>
+            <p className="quest-description mt-2 text-[#bbb6c7]">{previewData.description}</p>
             
             {transformedSubtasks.length > 0 && (
               <div className="mt-4">
-                <h5 className="font-semibold mb-2 dark:text-[#e6e1f0]">Quest Steps:</h5>
-                <ul className="ml-4 space-y-2 dark:text-[#bbb6c7]">
+                <h5 className="font-semibold mb-2 text-[#e6e1f0]">Quest Steps:</h5>
+                <ul className="ml-4 space-y-2 text-[#bbb6c7]">
                   {transformedSubtasks.map((task, i) => (
                     <li key={i} className="list-disc ml-2">
                       {task.transformed}
@@ -272,7 +273,7 @@ export default function QuestForm({ onQuestAdded }: QuestFormProps) {
               </div>
             )}
             
-            <div className="quest-reward mt-4 dark:text-[#e6e1f0]">
+            <div className="quest-reward mt-4 text-[#e6e1f0]">
               <span className="text-sm font-semibold">Reward: </span> 
               {previewData.reward}
             </div>

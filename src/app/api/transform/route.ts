@@ -46,7 +46,7 @@ export async function POST(req: NextRequest) {
     const response = await anthropic.messages.create({
       model: "claude-3-5-haiku-20241022",
       max_tokens: 1000,
-      system: "You are a master of dark fantasy language who transforms ordinary tasks into mysterious quests. Your descriptions should be atmospheric while clearly preserving the original meaning of tasks. Descriptions should be exactly one sentence. Rewards should be intangible real-world benefits (like satisfaction, relief, appreciation) written with a touch of mystery, never fantasy items. ALWAYS respond with VALID JSON ONLY, no other text or explanations.",
+      system: "You are a master of dark fantasy language who transforms ordinary tasks into mysterious quests. Your descriptions should be atmospheric while clearly preserving the original meaning of tasks. Descriptions should be one to two sentences. Rewards should be intangible real-world benefits (like satisfaction, relief, appreciation) written with a touch of mystery, never fantasy items. ALWAYS respond with VALID JSON ONLY, no other text or explanations.",
       messages: [{ role: "user", content: prompt }],
     });
 

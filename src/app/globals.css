@@ -6,46 +6,27 @@
 @tailwind utilities;
 
 :root {
-  --background: 36, 25%, 97%;
-  --foreground: 36, 5%, 10%;
+  /* Force dark mode colors regardless of system preference */
+  --background: 36, 10%, 10%;
+  --foreground: 36, 5%, 95%;
   
   --primary: 35, 50%, 50%;
-  --primary-foreground: 35, 30%, 98%;
+  --primary-foreground: 35, 30%, 10%;
   
   --secondary: 200, 25%, 35%;
-  --secondary-foreground: 200, 30%, 98%;
+  --secondary-foreground: 200, 30%, 10%;
   
   --accent: 340, 50%, 40%;
-  --accent-foreground: 340, 30%, 98%;
+  --accent-foreground: 340, 30%, 10%;
   
-  --border: 36, 10%, 80%;
-  --card: 36, 25%, 99%;
-  --ring: 35, 50%, 40%;
-}
-
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: 36, 10%, 10%;
-    --foreground: 36, 5%, 95%;
-    
-    --primary: 35, 50%, 50%;
-    --primary-foreground: 35, 30%, 10%;
-    
-    --secondary: 200, 25%, 35%;
-    --secondary-foreground: 200, 30%, 10%;
-    
-    --accent: 340, 50%, 40%;
-    --accent-foreground: 340, 30%, 10%;
-    
-    --border: 36, 10%, 20%;
-    --card: 36, 25%, 5%;
-    --ring: 35, 50%, 60%;
-  }
+  --border: 36, 10%, 20%;
+  --card: 36, 25%, 5%;
+  --ring: 35, 50%, 60%;
 }
 
 body {
   color: hsl(var(--foreground));
-  background: hsl(var(--background));
+  background: #1a1625; /* Force dark background explicitly */
   font-family: 'EB Garamond', serif;
 }
 
@@ -115,6 +96,8 @@ h1, h2, h3, h4, h5, h6 {
   width: 100%;
   background-color: hsl(var(--background));
   color: hsl(var(--foreground));
+  height: 3.125rem;
+  box-sizing: border-box;
 }
 
 .fancy-button {
@@ -130,6 +113,8 @@ h1, h2, h3, h4, h5, h6 {
   background-color: #1a1625;
   color: #e6e1f0;
   border: 1px solid #3d3554;
+  height: 3.125rem;
+  box-sizing: border-box;
 }
 
 .fancy-button.primary {
@@ -312,7 +297,7 @@ h1, h2, h3, h4, h5, h6 {
 
 .quest-reward-new {
   background-color: #2a233c;
-  padding: 1rem;
+  padding: 0.5rem;
   margin: 1.25rem 0;
   border-radius: 0.25rem;
   border-left: 3px solid #8a7f55;
@@ -337,7 +322,7 @@ h1, h2, h3, h4, h5, h6 {
   display: flex;
   justify-content: center;
   gap: 1rem;
-  padding: 0.75rem 1.5rem 1.5rem 1.5rem;
+  padding: 0.75rem 1.5rem 1rem 1.5rem;
   margin-top: auto;
 }
 
@@ -352,6 +337,11 @@ h1, h2, h3, h4, h5, h6 {
   transition: all 0.2s ease;
   cursor: pointer;
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+  height: 3.125rem;
+  box-sizing: border-box;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
 }
 
 .quest-button:hover {

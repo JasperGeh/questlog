@@ -93,14 +93,14 @@ export default function QuestItem({ quest, onQuestUpdate }: QuestItemProps) {
                   {/* Use hollow diamond for all non-completed tasks */}
                   {subtask.completed ? (
                     <span className="quest-task-marker">
-                      ✓
+                      ◆
                     </span>
                   ) : (
                     <span className="quest-task-marker">
                       ◇
                     </span>
                   )}
-                  <span>{subtask.description}</span>
+                  <span className="quest-task-description">{subtask.description}</span>
                 </li>
               ))}
             </ul>

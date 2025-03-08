@@ -1,6 +1,6 @@
 # Questlog
 
-Questlog is a dark fantasy themed todo list application that transforms your mundane tasks into mysterious, ominous quests in the style of Dark Souls, with cryptic language, quest steps, and rewards. Inspired by a tweet I'll eventually look for and add here.
+Questlog is a dark fantasy themed todo list application that transforms your mundane tasks into mysterious, ominous quests in the style of Dark Souls, with cryptic language, quest steps, and rewards. Inspired by a [tweet from @meekaale](https://x.com/meekaale/status/1895877683684524160).
 
 > ⚠️ **AI-Generated Project Warning**: This project is "vibecoded" - meaning all portions (including this box) were generated using AI assistance. While efforts have been made to ensure quality and functionality, it comes with the inherent risks and limitations of AI-generated code. The code may contain unexpected behaviors, security vulnerabilities, or implementation gaps. Use at your own discretion and thoroughly test before using in any critical systems.
 
@@ -103,8 +103,7 @@ TodoQuest provides an API endpoint that you can use with iOS Shortcuts to add ne
 ```json
 {
   "title": "Your task title",
-  "category": "daily", // "main" or "optional"
-  "reward": "What you get from completing this",
+  "category": "main", // "main" or "optional"
   "dueDate": "2023-12-31", // Optional ISO date string
   "subTasks": ["Subtask 1", "Subtask 2"] // Optional array of subtasks
 }
@@ -191,3 +190,4 @@ This project is licensed under the MIT License - see the LICENSE file for detail
 - Styled with Tailwind CSS
 - Fonts: Cinzel and EB Garamond for that dark fantasy feel
 - AI transformations powered by Anthropic's Claude 3.5 Haiku
+– Code written by Anthropic's Claude 3.7 Sonnet

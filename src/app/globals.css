@@ -279,10 +279,24 @@ h1, h2, h3, h4, h5, h6 {
   border-bottom: 1px solid #3d3554;
   color: #d3cfe1;
   font-size: 1rem;
+  text-decoration: none; /* Ensure no text decoration by default */
 }
 
 .quest-task-item.completed {
   color: #8f8ba1;
+}
+
+/* Remove all previous attempts */
+/* .quest-task-item.completed > span:nth-child(2) {
+  text-decoration: line-through;
+} */
+
+/* Apply strikethrough ONLY to the description class */
+.quest-task-description {
+  /* No special styling by default */
+}
+
+.quest-task-item.completed .quest-task-description {
   text-decoration: line-through;
 }
 
@@ -293,6 +307,7 @@ h1, h2, h3, h4, h5, h6 {
   line-height: 1;
   margin-top: 0.1rem;
   color: #d3cfe1;
+  text-decoration: none !important; /* Force no strikethrough */
 }
 
 .quest-reward-new {

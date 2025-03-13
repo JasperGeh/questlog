@@ -69,6 +69,9 @@ export default function QuestItem({ quest, onQuestUpdate }: QuestItemProps) {
             <h3 className="quest-title-new">
               {quest.title}
             </h3>
+            <p className="quest-subtitle">
+              {quest.description}
+            </p>
           </div>
         </div>
         

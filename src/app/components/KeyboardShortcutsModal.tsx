@@ -13,6 +13,8 @@ export default function KeyboardShortcutsModal({ isOpen, onClose }: KeyboardShor
   const mod = getModifierKey();
 
   const shortcuts = [
+    { keys: `${mod} + Z`, description: 'Undo last action' },
+    { keys: `${mod} + Shift + Z`, description: 'Redo last action' },
     { keys: `${mod} + N`, description: 'Create new quest' },
     { keys: `${mod} + F`, description: 'Focus search' },
     { keys: `${mod} + K`, description: 'Toggle filters' },

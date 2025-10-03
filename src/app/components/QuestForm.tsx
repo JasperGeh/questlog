@@ -2,14 +2,16 @@
 
 import { useState, useRef } from 'react';
 import { v4 as uuidv4 } from 'uuid';
-import { Quest, QuestCategory } from '../types';
+import { Quest, QuestCategory, QuestTemplate } from '../types';
 import { addQuest } from '../services/storage';
 import { transformToEpicQuest } from '../services/epicTransformer';
 import { useToast } from '../hooks/useToast';
+import { saveTemplate } from '../services/templateStorage';
 import Toast from './Toast';
+import TemplateSelector from './TemplateSelector';
 
 interface QuestFormProps {
-  onQuestAdded: (quests: Quest[]) => void;
+  onQuestAdded: (quests: Quest[], quest: Quest) => void;
   inputRef?: React.RefObject<HTMLInputElement>;
 }
 
@@ -25,6 +27,9 @@ export default function QuestForm({ onQuestAdded, inputRef }: QuestFormProps) {
   const datePickerRef = useRef<HTMLInputElement>(null);
   const { toasts, removeToast, success, error, loading } = useToast();
   const [loadingToastId, setLoadingToastId] = useState<string | null>(null);
+  const [showTemplateSelector, setShowTemplateSelector] = useState(false);
+  const [showSaveAsTemplate, setShowSaveAsTemplate] = useState(false);
+  const [templateName, setTemplateName] = useState('');
   
   const handleAddSubtask = () => {
     setSubtasks([...subtasks, '']);
@@ -137,7 +142,7 @@ export default function QuestForm({ onQuestAdded, inputRef }: QuestFormProps) {
       
       // Add to storage and update state
       const updatedQuests = await addQuest(quest);
-      onQuestAdded(updatedQuests);
+      onQuestAdded(updatedQuests, quest);
 
       // Show success message
       success('Quest inscribed in thy log...');
@@ -160,6 +165,35 @@ export default function QuestForm({ onQuestAdded, inputRef }: QuestFormProps) {
   const toggleCategory = () => {
     setCategory(category === QuestCategory.MAIN ? QuestCategory.OPTIONAL : QuestCategory.MAIN);
   };
+
+  const handleSelectTemplate = (template: QuestTemplate) => {
+    setTitle(template.title);
+    setCategory(template.category);
+    setSubtasks(template.subtasks);
+  };
+
+  const handleSaveAsTemplate = async () => {
+    if (!templateName.trim() || !title.trim()) {
+      error('Please provide both a template name and quest title');
+      return;
+    }
+
+    try {
+      await saveTemplate({
+        name: templateName,
+        title: title,
+        category: category,
+        subtasks: subtasks.filter(s => s.trim()),
+      });
+
+      success('Template saved! It shall be available for future quests.');
+      setShowSaveAsTemplate(false);
+      setTemplateName('');
+    } catch (err) {
+      console.error('Failed to save template:', err);
+      error('Failed to save template. The spirits resist thy efforts.');
+    }
+  };
   
   return (
     <div className="mb-10">
@@ -169,13 +203,22 @@ export default function QuestForm({ onQuestAdded, inputRef }: QuestFormProps) {
         <div className="flex space-x-2 items-center">
           <button
             type="button"
+            onClick={() => setShowTemplateSelector(true)}
+            className="quest-button shrink-0"
+            title="Use a template"
+          >
+            📜 Template
+          </button>
+
+          <button
+            type="button"
             onClick={toggleCategory}
             className={`quest-button shrink-0 ${category === QuestCategory.MAIN ? 'primary' : 'secondary'}`}
             title={category === QuestCategory.MAIN ? 'Main Quest' : 'Optional Quest'}
           >
             {category === QuestCategory.MAIN ? 'Main' : 'Optional'}
           </button>
-          
+
           <button
             type="button"
             onClick={() => datePickerRef.current?.showPicker()}
@@ -298,14 +341,84 @@ export default function QuestForm({ onQuestAdded, inputRef }: QuestFormProps) {
             </div>
           </div>
           
-          <button
-            type="button"
-            className="quest-button"
-            onClick={handleSubmit}
-            disabled={isSubmitting}
-          >
-            {isSubmitting ? 'Inscribing...' : 'Accept This Fate'}
-          </button>
+          <div className="flex gap-2">
+            <button
+              type="button"
+              className="quest-button flex-1"
+              onClick={handleSubmit}
+              disabled={isSubmitting}
+            >
+              {isSubmitting ? 'Inscribing...' : 'Accept This Fate'}
+            </button>
+            <button
+              type="button"
+              className="quest-button secondary"
+              onClick={() => setShowSaveAsTemplate(true)}
+              title="Save this quest as a template for later use"
+            >
+              Save as Template
+            </button>
+          </div>
+        </div>
+      )}
+
+      {/* Template Selector Modal */}
+      {showTemplateSelector && (
+        <TemplateSelector
+          onSelectTemplate={handleSelectTemplate}
+          onClose={() => setShowTemplateSelector(false)}
+        />
+      )}
+
+      {/* Save as Template Modal */}
+      {showSaveAsTemplate && (
+        <div className="fixed inset-0 bg-black bg-opacity-75 flex items-center justify-center z-50 p-4">
+          <div className="quest-card max-w-md w-full">
+            <div className="flex justify-between items-center mb-4">
+              <h3 className="text-xl font-bold">Save as Template</h3>
+              <button
+                onClick={() => {
+                  setShowSaveAsTemplate(false);
+                  setTemplateName('');
+                }}
+                className="text-2xl hover:text-gray-400 transition-colors"
+                aria-label="Close"
+              >
+                ✕
+              </button>
+            </div>
+
+            <p className="text-sm text-gray-400 mb-4">
+              Give this quest template a name to use it again in the future.
+            </p>
+
+            <input
+              type="text"
+              value={templateName}
+              onChange={(e) => setTemplateName(e.target.value)}
+              placeholder="Template name (e.g., 'Daily Standup')"
+              className="fancy-input w-full mb-4"
+            />
+
+            <div className="flex gap-2">
+              <button
+                onClick={handleSaveAsTemplate}
+                className="quest-button flex-1"
+                disabled={!templateName.trim()}
+              >
+                Save Template
+              </button>
+              <button
+                onClick={() => {
+                  setShowSaveAsTemplate(false);
+                  setTemplateName('');
+                }}
+                className="quest-button secondary flex-1"
+              >
+                Cancel
+              </button>
+            </div>
+          </div>
         </div>
       )}
 

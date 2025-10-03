@@ -14,9 +14,10 @@ interface QuestLogProps {
   onQuestsUpdate: (quests: Quest[]) => void;
   searchInputRef?: React.RefObject<HTMLInputElement>;
   filtersToggleRef?: React.RefObject<HTMLButtonElement>;
+  onAction?: (action: any) => void;
 }
 
-export default function QuestLog({ quests, onQuestsUpdate, searchInputRef, filtersToggleRef }: QuestLogProps) {
+export default function QuestLog({ quests, onQuestsUpdate, searchInputRef, filtersToggleRef, onAction }: QuestLogProps) {
   const [filters, setFilters] = useState<QuestFilterOptions>({
     search: '',
     category: 'all',
@@ -109,7 +110,16 @@ export default function QuestLog({ quests, onQuestsUpdate, searchInputRef, filte
     if (completedCount === 0) return;
 
     if (confirm(`Clear all ${completedCount} completed quests? This action cannot be undone.`)) {
+      const deletedQuests = quests.filter(q => q.completed);
       const activeQuests = quests.filter(q => !q.completed);
+
+      // Record action for undo
+      onAction?.({
+        type: 'clear_completed',
+        data: { deletedQuests },
+        timestamp: Date.now(),
+      });
+
       await saveQuests(activeQuests);
       onQuestsUpdate(activeQuests);
       success('The completed chronicles have been sealed away...');
@@ -162,6 +172,7 @@ export default function QuestLog({ quests, onQuestsUpdate, searchInputRef, filte
                       key={quest.id}
                       quest={quest}
                       onQuestUpdate={onQuestsUpdate}
+                      onAction={onAction}
                     />
                   ))}
                 </div>

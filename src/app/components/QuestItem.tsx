@@ -11,13 +11,21 @@ import Toast from './Toast';
 interface QuestItemProps {
   quest: Quest;
   onQuestUpdate: (updatedQuests: Quest[]) => void;
+  onAction?: (action: any) => void;
 }
 
-function QuestItem({ quest, onQuestUpdate }: QuestItemProps) {
+function QuestItem({ quest, onQuestUpdate, onAction }: QuestItemProps) {
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const { toasts, removeToast, success } = useToast();
 
   const handleQuestCompletion = async () => {
+    // Record action for undo
+    onAction?.({
+      type: quest.completed ? 'uncomplete' : 'complete',
+      data: { questId: quest.id },
+      timestamp: Date.now(),
+    });
+
     const updatedQuests = await toggleQuestCompletion(quest.id);
     onQuestUpdate(updatedQuests);
     if (!quest.completed) {
@@ -27,6 +35,13 @@ function QuestItem({ quest, onQuestUpdate }: QuestItemProps) {
 
   const handleQuestAbandonment = async () => {
     if (confirm('Are you sure you wish to abandon this quest? This action cannot be undone.')) {
+      // Record action for undo
+      onAction?.({
+        type: 'delete',
+        data: { quest },
+        timestamp: Date.now(),
+      });
+
       const updatedQuests = await deleteQuest(quest.id);
       onQuestUpdate(updatedQuests);
       success('Quest abandoned. Its memory fades into shadow...');
@@ -39,6 +54,13 @@ function QuestItem({ quest, onQuestUpdate }: QuestItemProps) {
   };
 
   const handleEditSave = async (updatedQuest: Quest) => {
+    // Record action for undo
+    onAction?.({
+      type: 'update',
+      data: { previousQuest: quest, newQuest: updatedQuest },
+      timestamp: Date.now(),
+    });
+
     const updatedQuests = await updateQuest(updatedQuest);
     onQuestUpdate(updatedQuests);
     success('Quest updated. The chronicle has been rewritten...');

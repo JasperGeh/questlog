@@ -23,4 +23,14 @@ export interface Quest {
   subTasks: SubTask[];
   realLifeReward: string;
   visualReward?: string;
+}
+
+export interface QuestTemplate {
+  id: string;
+  name: string;
+  title: string;
+  category: QuestCategory;
+  subtasks: string[];
+  createdAt: number;
+  usageCount: number;
 } 

@@ -2,12 +2,15 @@
 
 import { useState, useEffect, useRef } from 'react';
 import { Quest } from './types';
-import { loadQuests, performMigrationIfNeeded } from './services/storage';
+import { loadQuests, performMigrationIfNeeded, saveQuests } from './services/storage';
 import QuestForm from './components/QuestForm';
 import QuestLog from './components/QuestLog';
 import QuestStats from './components/QuestStats';
 import KeyboardShortcutsModal from './components/KeyboardShortcutsModal';
+import ErrorBoundary from './components/ErrorBoundary';
 import { useKeyboardShortcuts } from './hooks/useKeyboardShortcuts';
+import { useUndoRedo, Action } from './hooks/useUndoRedo';
+import { useToast } from './hooks/useToast';
 
 export default function Home() {
   const [quests, setQuests] = useState<Quest[]>([]);
@@ -20,6 +23,10 @@ export default function Home() {
   const questInputRef = useRef<HTMLInputElement>(null);
   const searchInputRef = useRef<HTMLInputElement>(null);
   const filtersToggleRef = useRef<HTMLButtonElement>(null);
+
+  // Undo/Redo functionality
+  const { addAction, undo, redo, canUndo, canRedo } = useUndoRedo();
+  const { success, info } = useToast();
 
   // Load quests and perform migration if needed
   useEffect(() => {
@@ -49,8 +56,130 @@ export default function Home() {
   const activeCount = quests.filter(q => !q.completed).length;
   const completedCount = quests.filter(q => q.completed).length;
 
+  // Undo/Redo handlers
+  const handleUndo = async () => {
+    const action = undo();
+    if (!action) return;
+
+    let newQuests: Quest[] = [];
+
+    switch (action.type) {
+      case 'add':
+        // Undo add: remove the quest
+        newQuests = quests.filter(q => q.id !== action.data.quest.id);
+        info('Quest creation undone');
+        break;
+      case 'delete':
+        // Undo delete: restore the quest
+        newQuests = [...quests, action.data.quest];
+        info('Quest deletion undone');
+        break;
+      case 'complete':
+        // Undo complete: mark as incomplete
+        newQuests = quests.map(q =>
+          q.id === action.data.questId ? { ...q, completed: false } : q
+        );
+        info('Quest completion undone');
+        break;
+      case 'uncomplete':
+        // Undo uncomplete: mark as complete
+        newQuests = quests.map(q =>
+          q.id === action.data.questId ? { ...q, completed: true } : q
+        );
+        info('Quest restored to completed');
+        break;
+      case 'update':
+        // Undo update: restore previous state
+        newQuests = quests.map(q =>
+          q.id === action.data.previousQuest.id ? action.data.previousQuest : q
+        );
+        info('Quest changes undone');
+        break;
+      case 'clear_completed':
+        // Undo clear completed: restore all deleted quests
+        newQuests = [...quests, ...action.data.deletedQuests];
+        info('Cleared quests restored');
+        break;
+    }
+
+    setQuests(newQuests);
+    await saveQuests(newQuests);
+  };
+
+  const handleRedo = async () => {
+    const action = redo();
+    if (!action) return;
+
+    let newQuests: Quest[] = [];
+
+    switch (action.type) {
+      case 'add':
+        // Redo add: add the quest back
+        newQuests = [...quests, action.data.quest];
+        info('Quest creation redone');
+        break;
+      case 'delete':
+        // Redo delete: remove the quest again
+        newQuests = quests.filter(q => q.id !== action.data.quest.id);
+        info('Quest deletion redone');
+        break;
+      case 'complete':
+        // Redo complete: mark as complete
+        newQuests = quests.map(q =>
+          q.id === action.data.questId ? { ...q, completed: true } : q
+        );
+        info('Quest completion redone');
+        break;
+      case 'uncomplete':
+        // Redo uncomplete: mark as incomplete
+        newQuests = quests.map(q =>
+          q.id === action.data.questId ? { ...q, completed: false } : q
+        );
+        info('Quest uncomplete redone');
+        break;
+      case 'update':
+        // Redo update: apply the new state
+        newQuests = quests.map(q =>
+          q.id === action.data.newQuest.id ? action.data.newQuest : q
+        );
+        info('Quest changes redone');
+        break;
+      case 'clear_completed':
+        // Redo clear completed: remove completed quests again
+        newQuests = quests.filter(q => !q.completed);
+        info('Completed quests cleared again');
+        break;
+    }
+
+    setQuests(newQuests);
+    await saveQuests(newQuests);
+  };
+
   // Keyboard shortcuts
   useKeyboardShortcuts([
+    {
+      key: 'z',
+      ctrl: true,
+      description: 'Undo last action',
+      callback: (e) => {
+        if (canUndo) {
+          e.preventDefault();
+          handleUndo();
+        }
+      },
+    },
+    {
+      key: 'z',
+      ctrl: true,
+      shift: true,
+      description: 'Redo last action',
+      callback: (e) => {
+        if (canRedo) {
+          e.preventDefault();
+          handleRedo();
+        }
+      },
+    },
     {
       key: 'n',
       ctrl: true,
@@ -138,38 +267,50 @@ export default function Home() {
       <div className="space-y-10">
         {/* Statistics Dashboard */}
         {showStats && !isLoading && (
-          <section>
-            <QuestStats quests={quests} />
-          </section>
+          <ErrorBoundary>
+            <section>
+              <QuestStats quests={quests} />
+            </section>
+          </ErrorBoundary>
         )}
 
         {/* New Quest Form */}
-        <section>
-          <QuestForm
-            inputRef={questInputRef}
-            onQuestAdded={(updatedQuests) => {
-              setQuests(updatedQuests);
-            }}
-          />
-        </section>
-
-        {/* Quest Log */}
-        <section>
-          {isLoading ? (
-            <div className="text-center py-8">
-              <p className="text-xl italic">Loading thy quest log...</p>
-            </div>
-          ) : (
-            <QuestLog
-              quests={quests}
-              searchInputRef={searchInputRef}
-              filtersToggleRef={filtersToggleRef}
-              onQuestsUpdate={(updatedQuests) => {
+        <ErrorBoundary>
+          <section>
+            <QuestForm
+              inputRef={questInputRef}
+              onQuestAdded={(updatedQuests, quest) => {
                 setQuests(updatedQuests);
+                addAction({
+                  type: 'add',
+                  data: { quest },
+                  timestamp: Date.now(),
+                });
               }}
             />
-          )}
-        </section>
+          </section>
+        </ErrorBoundary>
+
+        {/* Quest Log */}
+        <ErrorBoundary>
+          <section>
+            {isLoading ? (
+              <div className="text-center py-8">
+                <p className="text-xl italic">Loading thy quest log...</p>
+              </div>
+            ) : (
+              <QuestLog
+                quests={quests}
+                searchInputRef={searchInputRef}
+                filtersToggleRef={filtersToggleRef}
+                onQuestsUpdate={(updatedQuests) => {
+                  setQuests(updatedQuests);
+                }}
+                onAction={addAction}
+              />
+            )}
+          </section>
+        </ErrorBoundary>
       </div>
 
       <footer className="mt-16 text-center text-sm text-gray-500">

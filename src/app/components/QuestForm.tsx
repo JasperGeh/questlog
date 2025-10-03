@@ -5,6 +5,8 @@ import { v4 as uuidv4 } from 'uuid';
 import { Quest, QuestCategory } from '../types';
 import { addQuest } from '../services/questStorage';
 import { transformToEpicQuest } from '../services/epicTransformer';
+import { useToast } from '../hooks/useToast';
+import Toast from './Toast';
 
 interface QuestFormProps {
   onQuestAdded: (quests: Quest[]) => void;
@@ -20,6 +22,8 @@ export default function QuestForm({ onQuestAdded }: QuestFormProps) {
   const [showPreview, setShowPreview] = useState(false);
   const [previewData, setPreviewData] = useState<{title: string, description: string, reward: string} | null>(null);
   const datePickerRef = useRef<HTMLInputElement>(null);
+  const { toasts, removeToast, success, error, loading } = useToast();
+  const [loadingToastId, setLoadingToastId] = useState<string | null>(null);
   
   const handleAddSubtask = () => {
     setSubtasks([...subtasks, '']);
@@ -40,13 +44,15 @@ export default function QuestForm({ onQuestAdded }: QuestFormProps) {
     if (!title.trim()) {
       return;
     }
-    
+
     setIsSubmitting(true);
-    
+    const toastId = loading('The ancient texts are being consulted...');
+    setLoadingToastId(toastId);
+
     try {
       // Filter subtasks to only include non-empty ones
       const filteredSubtasks = subtasks.filter(task => task.trim());
-      
+
       // Pass the filtered subtasks for batch transformation
       const epicQuest = await transformToEpicQuest(
         {
@@ -55,13 +61,13 @@ export default function QuestForm({ onQuestAdded }: QuestFormProps) {
         },
         filteredSubtasks
       );
-      
+
       // Transform subtasks for preview using the returned transformer
       const transformed = filteredSubtasks.map(task => ({
         original: task,
         transformed: epicQuest.subtaskTransformer(task)
       }));
-      
+
       setTransformedSubtasks(transformed);
       setPreviewData({
         title: epicQuest.epicTitle,
@@ -69,10 +75,17 @@ export default function QuestForm({ onQuestAdded }: QuestFormProps) {
         reward: epicQuest.epicReward
       });
       setShowPreview(true);
-    } catch (error) {
-      console.error('Failed to transform quest:', error);
+
+      // Remove loading toast and show success
+      if (loadingToastId) removeToast(loadingToastId);
+      success('The prophecy has been revealed...');
+    } catch (err) {
+      console.error('Failed to transform quest:', err);
+      if (loadingToastId) removeToast(loadingToastId);
+      error('The ritual has failed. The spirits are displeased.');
     } finally {
       setIsSubmitting(false);
+      setLoadingToastId(null);
     }
   };
   
@@ -124,7 +137,10 @@ export default function QuestForm({ onQuestAdded }: QuestFormProps) {
       // Add to storage and update state
       const updatedQuests = addQuest(quest);
       onQuestAdded(updatedQuests);
-      
+
+      // Show success message
+      success('Quest inscribed in thy log...');
+
       // Reset form
       setTitle('');
       setCategory(QuestCategory.MAIN);
@@ -132,8 +148,9 @@ export default function QuestForm({ onQuestAdded }: QuestFormProps) {
       setSubtasks([]);
       setShowPreview(false);
       setPreviewData(null);
-    } catch (error) {
-      console.error('Failed to add quest:', error);
+    } catch (err) {
+      console.error('Failed to add quest:', err);
+      error('Failed to inscribe quest. The fates conspire against thee.');
     } finally {
       setIsSubmitting(false);
     }
@@ -289,6 +306,16 @@ export default function QuestForm({ onQuestAdded }: QuestFormProps) {
           </button>
         </div>
       )}
+
+      {/* Toast Notifications */}
+      {toasts.map((toast) => (
+        <Toast
+          key={toast.id}
+          message={toast.message}
+          type={toast.type}
+          onClose={() => removeToast(toast.id)}
+        />
+      ))}
     </div>
   );
 } 

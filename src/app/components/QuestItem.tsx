@@ -1,8 +1,12 @@
 'use client';
 
+import { useState } from 'react';
 import { Quest } from '../types';
-import { toggleQuestCompletion, toggleSubtaskCompletion, deleteQuest } from '../services/questStorage';
+import { toggleQuestCompletion, toggleSubtaskCompletion, deleteQuest, updateQuest } from '../services/questStorage';
 import Image from 'next/image';
+import QuestEditModal from './QuestEditModal';
+import { useToast } from '../hooks/useToast';
+import Toast from './Toast';
 
 interface QuestItemProps {
   quest: Quest;
@@ -10,21 +14,34 @@ interface QuestItemProps {
 }
 
 export default function QuestItem({ quest, onQuestUpdate }: QuestItemProps) {
+  const [isEditModalOpen, setIsEditModalOpen] = useState(false);
+  const { toasts, removeToast, success } = useToast();
+
   const handleQuestCompletion = () => {
     const updatedQuests = toggleQuestCompletion(quest.id);
     onQuestUpdate(updatedQuests);
+    if (!quest.completed) {
+      success('Quest completed! The triumph echoes through eternity...');
+    }
   };
-  
+
   const handleQuestAbandonment = () => {
     if (confirm('Are you sure you wish to abandon this quest? This action cannot be undone.')) {
       const updatedQuests = deleteQuest(quest.id);
       onQuestUpdate(updatedQuests);
+      success('Quest abandoned. Its memory fades into shadow...');
     }
   };
-  
+
   const handleSubtaskCompletion = (subtaskId: string) => {
     const updatedQuests = toggleSubtaskCompletion(quest.id, subtaskId);
     onQuestUpdate(updatedQuests);
+  };
+
+  const handleEditSave = (updatedQuest: Quest) => {
+    const updatedQuests = updateQuest(updatedQuest);
+    onQuestUpdate(updatedQuests);
+    success('Quest updated. The chronicle has been rewritten...');
   };
   
   // Format the date for display
@@ -120,13 +137,20 @@ export default function QuestItem({ quest, onQuestUpdate }: QuestItemProps) {
 
         {/* Action buttons moved below reward in right column */}
         <div className="quest-actions">
-          <button 
+          <button
+            onClick={() => setIsEditModalOpen(true)}
+            className="quest-button"
+            title="Edit quest details"
+          >
+            Edit Quest
+          </button>
+          <button
             onClick={handleQuestCompletion}
             className={`quest-button ${quest.completed ? '' : 'complete'}`}
           >
             {quest.completed ? 'Reopen Quest' : 'Complete Quest'}
           </button>
-          <button 
+          <button
             onClick={handleQuestAbandonment}
             className="quest-button abandon"
           >
@@ -134,6 +158,24 @@ export default function QuestItem({ quest, onQuestUpdate }: QuestItemProps) {
           </button>
         </div>
       </div>
+
+      {/* Edit Modal */}
+      <QuestEditModal
+        quest={quest}
+        isOpen={isEditModalOpen}
+        onClose={() => setIsEditModalOpen(false)}
+        onSave={handleEditSave}
+      />
+
+      {/* Toast Notifications */}
+      {toasts.map((toast) => (
+        <Toast
+          key={toast.id}
+          message={toast.message}
+          type={toast.type}
+          onClose={() => removeToast(toast.id)}
+        />
+      ))}
     </div>
   );
 } 

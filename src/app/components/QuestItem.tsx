@@ -1,8 +1,8 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, memo } from 'react';
 import { Quest } from '../types';
-import { toggleQuestCompletion, toggleSubtaskCompletion, deleteQuest, updateQuest } from '../services/questStorage';
+import { toggleQuestCompletion, toggleSubtaskCompletion, deleteQuest, updateQuest } from '../services/storage';
 import Image from 'next/image';
 import QuestEditModal from './QuestEditModal';
 import { useToast } from '../hooks/useToast';
@@ -13,33 +13,33 @@ interface QuestItemProps {
   onQuestUpdate: (updatedQuests: Quest[]) => void;
 }
 
-export default function QuestItem({ quest, onQuestUpdate }: QuestItemProps) {
+function QuestItem({ quest, onQuestUpdate }: QuestItemProps) {
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const { toasts, removeToast, success } = useToast();
 
-  const handleQuestCompletion = () => {
-    const updatedQuests = toggleQuestCompletion(quest.id);
+  const handleQuestCompletion = async () => {
+    const updatedQuests = await toggleQuestCompletion(quest.id);
     onQuestUpdate(updatedQuests);
     if (!quest.completed) {
       success('Quest completed! The triumph echoes through eternity...');
     }
   };
 
-  const handleQuestAbandonment = () => {
+  const handleQuestAbandonment = async () => {
     if (confirm('Are you sure you wish to abandon this quest? This action cannot be undone.')) {
-      const updatedQuests = deleteQuest(quest.id);
+      const updatedQuests = await deleteQuest(quest.id);
       onQuestUpdate(updatedQuests);
       success('Quest abandoned. Its memory fades into shadow...');
     }
   };
 
-  const handleSubtaskCompletion = (subtaskId: string) => {
-    const updatedQuests = toggleSubtaskCompletion(quest.id, subtaskId);
+  const handleSubtaskCompletion = async (subtaskId: string) => {
+    const updatedQuests = await toggleSubtaskCompletion(quest.id, subtaskId);
     onQuestUpdate(updatedQuests);
   };
 
-  const handleEditSave = (updatedQuest: Quest) => {
-    const updatedQuests = updateQuest(updatedQuest);
+  const handleEditSave = async (updatedQuest: Quest) => {
+    const updatedQuests = await updateQuest(updatedQuest);
     onQuestUpdate(updatedQuests);
     success('Quest updated. The chronicle has been rewritten...');
   };
@@ -65,7 +65,7 @@ export default function QuestItem({ quest, onQuestUpdate }: QuestItemProps) {
             width={1792}
             height={1024}
             className="quest-image"
-            priority
+            loading="lazy"
           />
           
           {/* Only show COMPLETED badge, not FAILED */}
@@ -178,4 +178,11 @@ export default function QuestItem({ quest, onQuestUpdate }: QuestItemProps) {
       ))}
     </div>
   );
-} 
+}
+
+// Memoize to prevent unnecessary re-renders when other quests change
+export default memo(QuestItem, (prevProps, nextProps) => {
+  // Only re-render if the quest itself changed
+  return prevProps.quest.id === nextProps.quest.id &&
+         JSON.stringify(prevProps.quest) === JSON.stringify(nextProps.quest);
+}); 

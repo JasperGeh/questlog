@@ -3,16 +3,17 @@
 import { useState, useRef } from 'react';
 import { v4 as uuidv4 } from 'uuid';
 import { Quest, QuestCategory } from '../types';
-import { addQuest } from '../services/questStorage';
+import { addQuest } from '../services/storage';
 import { transformToEpicQuest } from '../services/epicTransformer';
 import { useToast } from '../hooks/useToast';
 import Toast from './Toast';
 
 interface QuestFormProps {
   onQuestAdded: (quests: Quest[]) => void;
+  inputRef?: React.RefObject<HTMLInputElement>;
 }
 
-export default function QuestForm({ onQuestAdded }: QuestFormProps) {
+export default function QuestForm({ onQuestAdded, inputRef }: QuestFormProps) {
   const [title, setTitle] = useState('');
   const [category, setCategory] = useState<QuestCategory>(QuestCategory.MAIN);
   const [dueDate, setDueDate] = useState('');
@@ -77,11 +78,11 @@ export default function QuestForm({ onQuestAdded }: QuestFormProps) {
       setShowPreview(true);
 
       // Remove loading toast and show success
-      if (loadingToastId) removeToast(loadingToastId);
+      removeToast(toastId);
       success('The prophecy has been revealed...');
     } catch (err) {
       console.error('Failed to transform quest:', err);
-      if (loadingToastId) removeToast(loadingToastId);
+      removeToast(toastId);
       error('The ritual has failed. The spirits are displeased.');
     } finally {
       setIsSubmitting(false);
@@ -135,7 +136,7 @@ export default function QuestForm({ onQuestAdded }: QuestFormProps) {
       };
       
       // Add to storage and update state
-      const updatedQuests = addQuest(quest);
+      const updatedQuests = await addQuest(quest);
       onQuestAdded(updatedQuests);
 
       // Show success message
@@ -202,6 +203,7 @@ export default function QuestForm({ onQuestAdded }: QuestFormProps) {
           />
 
           <input
+            ref={inputRef}
             type="text"
             className="fancy-input flex-grow"
             value={title}
